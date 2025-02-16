@@ -10,7 +10,7 @@ use crate::Config;
 #[derive(Debug)]
 pub struct SiteData {
     /// All posts found within the site
-    included_data: Node,
+    pub included_data: Node,
 }
 
 /// A single directory containing a post or a collection of posts.
@@ -28,7 +28,7 @@ pub enum Node {
     },
     File {
         /// Full file name, including the extension
-        file_name: String,
+        name: String,
 
         /// Path to the folder containing the node
         path: PathBuf,
@@ -71,7 +71,7 @@ fn iter_directory(path: &Path, filtered: bool) -> Result<Node, Box<dyn Error>> {
             }
             let path = entry.path();
             children.push(Node::File {
-                file_name,
+                name: file_name,
                 path: path.to_path_buf(),
                 data: fs::read_to_string(&path)
                     .map_err(|e| format!("File read error @ {}: {e}", path.display()))?,

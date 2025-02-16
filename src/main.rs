@@ -2,10 +2,12 @@
 //! a website
 
 mod file_system;
+mod posts;
 
-use std::{env, error::Error, fs, io::Write, path::PathBuf};
+use std::{env, error::Error, fs, path::PathBuf};
 
 use file_system::get_posts;
+use posts::process_site_data;
 
 #[derive(Default)]
 pub struct Config {
@@ -31,25 +33,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     fs::create_dir_all(&config.output_dir)?;
 
-    // format individual posts
-    // if the directory contains only an index file, create a single file, otherwise create a directory
+    // get the data to be stored in the site
+    let site = get_posts(&config)?;
 
-    // create index pages
-    let mut index = fs::File::create(config.output_dir.join("index.html"))?;
-    let data = indoc::formatdoc! {"
-    <!doctype html>
-    <html>
-        <head>
-            <title>{name}</title>
-        </head>
-        <body>
-            {data:#?}
-        </body>
-    </html>
-    ",
-    name = config.site_name,
-    data = get_posts(&config)?};
-    write!(index, "{}", data)?;
+    // process site data
+    process_site_data(site, &config)?;
 
     Ok(())
 }
